@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Калькулятор Terre & Co</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23FF9800'/%3E%3Ctext x='50' y='72' font-family='Arial, sans-serif' font-size='54' text-anchor='middle' fill='white' dominant-baseline='middle'%3E🦏%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Helvetica Neue', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #fef9ef 0%, #fff5e8 100%);
+            padding: 20px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 380px;
+            background-color: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 25px 45px rgba(255, 140, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            border: 1px solid rgba(255, 180, 70, 0.35);
+        }
+
+        .display {
+            background: #fffbf5;
+            padding: 32px 28px;
+            text-align: right;
+            min-height: 148px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            border-bottom: 2px solid #ffe1b9;
+        }
+
+        .previous-operand {
+            font-size: 1.05rem;
+            color: #f39c12;
+            min-height: 1.8rem;
+            word-break: break-all;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            opacity: 0.85;
+        }
+
+        .current-operand {
+            font-size: 3.3rem;
+            font-weight: 500;
+            word-break: break-all;
+            line-height: 1.2;
+            color: #2d2a24;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 26px 24px 28px 24px;
+            background: #ffffff;
+        }
+
+        button {
+            border: none;
+            padding: 18px 8px;
+            font-size: 1.55rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.18s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            outline: none;
+            border-radius: 28px;
+            color: #3a3530;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(255, 160, 50, 0.2);
+        }
+
+        button:hover {
+            background: #fffaf2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(255, 140, 0, 0.12), 0 0 0 1px rgba(255, 140, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .operation {
+            background: #ff9800;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+            border: none;
+            font-weight: 600;
+            font-size: 1.7rem;
+        }
+
+        .operation:hover {
+            background: #ff8c00;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.35);
+        }
+
+        .equals {
+            background: #ff9800;
+            color: white;
+            font-weight: 700;
+            font-size: 1.8rem;
+            border: none;
+            grid-column: span 2;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+
+        .equals:hover {
+            background: #fb8c00;
+            transform: translateY(-2px);
+        }
+
+        .clear, .delete {
+            background: #fff0e2;
+            color: #e67e22;
+            font-weight: 600;
+            border: none;
+            font-size: 1.4rem;
+        }
+
+        .clear:hover, .delete:hover {
+            background: #ffe5d4;
+            color: #cc7700;
+        }
+
+        .span-two {
+            grid-column: span 2;
+        }
+
+        footer {
+            margin-top: 32px;
+            text-align: center;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .copyright {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 250, 240, 0.7);
+            padding: 12px 20px;
+            border-radius: 100px;
+        }
+
+        .copyright span {
+            color: #ff8c42;
+            font-weight: 600;
+        }
+
+        hr {
+            width: 60px;
+            margin: 0 auto;
+            border: 1px solid #ffd7a5;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                max-width: 100%;
+                border-radius: 32px;
+            }
+            
+            button {
+                padding: 16px 5px;
+                font-size: 1.45rem;
+                border-radius: 24px;
+            }
+            
+            .current-operand {
+                font-size: 2.7rem;
+            }
+            
+            .buttons-grid {
+                padding: 20px 18px 24px;
+                gap: 10px;
+            }
+            
+            .display {
+                padding: 24px 20px;
+                min-height: 130px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="clear span-two" data-action="clear">Очистить</button>
+            <button class="delete" data-action="delete">⌫</button>
+            <button class="operation" data-operation="÷">÷</button>
+            
+            <button class="number" data-number="7">7</button>
+            <button class="number" data-number="8">8</button>
+            <button class="number" data-number="9">9</button>
+            <button class="operation" data-operation="×">×</button>
+            
+            <button class="number" data-number="4">4</button>
+            <button class="number" data-number="5">5</button>
+            <button class="number" data-number="6">6</button>
+            <button class="operation" data-operation="-">-</button>
+            
+            <button class="number" data-number="1">1</button>
+            <button class="number" data-number="2">2</button>
+            <button class="number" data-number="3">3</button>
+            <button class="operation" data-operation="+">+</button>
+            
+            <button class="number" data-number="0">0</button>
+            <button class="number" data-number=",">,</button>
+            <button class="equals" data-action="equals">=</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="copyright">
+            <hr>
+            <span>🦏 Terre & Co, 2025</span>
+            <small style="color:#b97f2e;">надёжный расчёт в каждой детали</small>
+        </div>
+    </footer>
+
+    <script>
+        (function(){
+            // DOM элементы
+            const currentOperandEl = document.getElementById('current-operand');
+            const previousOperandEl = document.getElementById('previous-operand');
+            
+            // Состояние калькулятора
+            let currentNumber = '0';      // текущее отображаемое число (строка с запятой)
+            let previousNumber = null;    // предыдущее число (числовой тип)
+            let previousExpression = '';   // строка для отображения в верхней части
+            let pendingOperation = null;   // ожидающая операция
+            let newNumberExpected = false;  // ожидание нового числа после операции
+            
+            // Преобразование строки с запятой в число с точкой
+            function parseCommaNumber(str) {
+                if (!str || str === '') return NaN;
+                // удаляем все пробелы и заменяем запятую на точку
+                const normalized = str.trim().replace(/,/g, '.');
+                const parsed = parseFloat(normalized);
+                return isNaN(parsed) ? NaN : parsed;
+            }
+            
+            // Преобразование числа в строку с запятой, с контролем точности
+            function formatNumberWithComma(value) {
+                if (isNaN(value)) return '0';
+                
+                // Обработка очень маленьких чисел
+                if (Math.abs(value) < 0.000001 && value !== 0) {
+                    return value.toFixed(10).replace(/\./g, ',').replace(/0+$/, '').replace(/,$/, '');
+                }
+                
+                // Ограничиваем количество знаков после запятой (максимум 10)
+                let rounded = value;
+                if (!Number.isInteger(value)) {
+                    rounded = parseFloat(value.toFixed(10));
+                }
+                
+                let str = rounded.toString();
+                
+                // Научная нотация? Преобразуем в обычную
+                if (str.includes('e')) {
+                    str = rounded.toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 10 });
+                }
+                
+                // Заменяем точку на запятую
+                str = str.replace(/\./g, ',');
+                
+                // Убираем лишние завершающие нули после запятой
+                if (str.includes(',')) {
+                    while (str.endsWith('0') && str.split(',')[1].length > 1) {
+                        str = str.slice(0, -1);
+                    }
+                    if (str.endsWith(',')) {
+                        str = str.slice(0, -1);
+                    }
+                }
+                
+                // Защита от "-0"
+                if (str === '-0') str = '0';
+                
+                return str;
+            }
+            
+            // Обновление дисплея
+            function updateDisplay() {
+                currentOperandEl.textContent = currentNumber === '' ? '0' : currentNumber;
+                previousOperandEl.textContent = previousExpression;
+            }
+            
+            // Выполнение вычисления
+            function performCalculation() {
+                if (previousNumber === null || pendingOperation === null) return false;
+                
+                const currentValue = parseCommaNumber(currentNumber);
+                if (isNaN(currentValue)) return false;
+                
+                let result;
+                switch (pendingOperation) {
+                    case '+':
+                        result = previousNumber + currentValue;
+                        break;
+                    case '-':
+                        result = previousNumber - currentValue;
+                        break;
+                    case '×':
+                        result = previousNumber * currentValue;
+                        break;
+                    case '÷':
+                        if (currentValue === 0) {
+                            alert("⚠️ Ошибка: деление на ноль!");
+                            return false;
+                        }
+                        result = previousNumber / currentValue;
+                        break;
+                    default:
+                        return false;
+                }
+                
+                // Округление для устранения погрешностей плавающей точки
+                // Например, 0.1 + 0.2 = 0.30000000000000004 → 0.3
+                if (typeof result === 'number' && !Number.isInteger(result)) {
+                    result = parseFloat(result.toFixed(12));
+                }
+                
+                currentNumber = formatNumberWithComma(result);
+                previousNumber = null;
+                pendingOperation = null;
+                previousExpression = '';
+                newNumberExpected = true;
+                updateDisplay();
+                return true;
+            }
+            
+            // Добавление цифры или запятой
+            function addDigit(digit) {
+                // Если ожидаем новое число, сбрасываем текущее
+                if (newNumberExpected) {
+                    currentNumber = '';
+                    newNumberExpected = false;
+                }
+                
+                // Обработка запятой
+                if (digit === ',') {
+                    // Нельзя добавить вторую запятую
+                    if (currentNumber.includes(',')) return;
+                    // Если число пустое, добавляем "0,"
+                    if (currentNumber === '') {
+                        currentNumber = '0,';
+                    } else {
+                        currentNumber += ',';
+                    }
+                    updateDisplay();
+                    return;
+                }
+                
+                // Обработка цифр
+                if (currentNumber === '0' && !newNumberExpected) {
+                    currentNumber = digit;
+                } else {
+                    // Ограничиваем длину для предотвращения переполнения интерфейса
+                    if (currentNumber.length < 20) {
+                        currentNumber += digit;
+                    }
+                }
+                
+                updateDisplay();
+            }
+            
+            // Выбор операции
+            function selectOperation(operation) {
+                // Если текущее число пустое или невалидное, игнорируем
+                if (currentNumber === '' || currentNumber === '-') return;
+                
+                const currentValue = parseCommaNumber(currentNumber);
+                if (isNaN(currentValue)) return;
+                
+                // Если уже есть ожидающая операция и предыдущее число, выполняем вычисление
+                if (previousNumber !== null && pendingOperation !== null && !newNumberExpected) {
+                    const success = performCalculation();
+                    if (!success) {
+                        clearAll();
+                        return;
+                    }
+                    // После вычисления currentNumber обновлён, а previousNumber стал null
+                    // Используем новый currentNumber как previous для следующей операции
+                    const newPrevValue = parseCommaNumber(currentNumber);
+                    if (!isNaN(newPrevValue)) {
+                        previousNumber = newPrevValue;
+                    } else {
+                        previousNumber = null;
+                    }
+                } else {
+                    // Сохраняем текущее число как предыдущее
+                    previousNumber = currentValue;
+                }
+                
+                // Устанавливаем новую операцию
+                pendingOperation = operation;
+                previousExpression = `${currentNumber} ${operation}`;
+                newNumberExpected = true;
+                updateDisplay();
+            }
+            
+            // Обработка нажатия "="
+            function handleEquals() {
+                if (pendingOperation === null || previousNumber === null) {
+                    return;
+                }
+                
+                // Если ожидаем новое число, но его нет, ничего не делаем
+                if (newNumberExpected && (currentNumber === '' || currentNumber === '0')) {
+                    return;
+                }
+                
+                performCalculation();
+            }
+            
+            // Полная очистка
+            function clearAll() {
+                currentNumber = '0';
+                previousNumber = null;
+                pendingOperation = null;
+                previousExpression = '';
+                newNumberExpected = false;
+                updateDisplay();
+            }
+            
+            // Удаление последнего символа
+            function deleteLast() {
+                // Если ожидаем новое число, удалять нечего
+                if (newNumberExpected) return;
+                
+                if (currentNumber === '0') return;
+                
+                if (currentNumber.length === 1) {
+                    currentNumber = '0';
+                } else {
+                    currentNumber = currentNumber.slice(0, -1);
+                    if (currentNumber === '' || currentNumber === '-') {
+                        currentNumber = '0';
+                    }
+                    // Если осталась только запятая в начале
+                    if (currentNumber === ',') {
+                        currentNumber = '0';
+                    }
+                }
+                updateDisplay();
+            }
+            
+            // Обработка клавиатуры
+            function onKeyPress(event) {
+                const key = event.key;
+                
+                // Цифры 0-9
+                if (/^[0-9]$/.test(key)) {
+                    event.preventDefault();
+                    addDigit(key);
+                }
+                // Запятая или точка
+                else if (key === '.' || key === ',') {
+                    event.preventDefault();
+                    addDigit(',');
+                }
+                // Операции
+                else if (key === '+') {
+                    event.preventDefault();
+                    selectOperation('+');
+                }
+                else if (key === '-') {
+                    event.preventDefault();
+                    selectOperation('-');
+                }
+                else if (key === '*') {
+                    event.preventDefault();
+                    selectOperation('×');
+                }
+                else if (key === '/') {
+                    event.preventDefault();
+                    selectOperation('÷');
+                }
+                // Равно или Enter
+                else if (key === 'Enter' || key === '=') {
+                    event.preventDefault();
+                    handleEquals();
+                }
+                // Escape или Delete - очистка
+                else if (key === 'Escape' || key === 'Delete') {
+                    event.preventDefault();
+                    clearAll();
+                }
+                // Backspace - удаление
+                else if (key === 'Backspace') {
+                    event.preventDefault();
+                    deleteLast();
+                }
+            }
+            
+            // Настройка обработчиков событий для кнопок
+            function initEventListeners() {
+                const grid = document.querySelector('.buttons-grid');
+                if (!grid) return;
+                
+                grid.addEventListener('click', (event) => {
+                    const button = event.target.closest('button');
+                    if (!button) return;
+                    
+                    // Визуальная обратная связь
+                    button.style.transform = 'scale(0.96)';
+                    setTimeout(() => {
+                        if (button) button.style.transform = '';
+                    }, 100);
+                    
+                    // Обработка по типу кнопки
+                    if (button.hasAttribute('data-number')) {
+                        const value = button.getAttribute('data-number');
+                        addDigit(value);
+                    }
+                    else if (button.hasAttribute('data-operation')) {
+                        const op = button.getAttribute('data-operation');
+                        selectOperation(op);
+                    }
+                    else if (button.getAttribute('data-action') === 'equals') {
+                        handleEquals();
+                    }
+                    else if (button.getAttribute('data-action') === 'clear') {
+                        clearAll();
+                    }
+                    else if (button.getAttribute('data-action') === 'delete') {
+                        deleteLast();
+                    }
+                });
+            }
+            
+            // Инициализация
+            function init() {
+                initEventListeners();
+                document.addEventListener('keydown', onKeyPress);
+                updateDisplay();
+            }
+            
+            init();
+        })();
+    </script>
+</body>
+</html>
